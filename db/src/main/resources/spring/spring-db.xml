@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:mybatis="http://mybatis.org/schema/mybatis-spring"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/tx
+       http://www.springframework.org/schema/tx/spring-tx.xsd
+       http://mybatis.org/schema/mybatis-spring
+       http://mybatis.org/schema/mybatis-spring.xsd">
+
+    <tx:annotation-driven mode="proxy" proxy-target-class="false"  transaction-manager="transactionManager"/>
+
+    <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource" init-method="init"
+          destroy-method="close">
+        <property name="driverClassName" value="${jdbc.default.driverClass}"/>
+
+        <property name="url" value="${jdbc.default.url}"/>
+        <property name="username" value="${jdbc.default.username}"/>
+        <property name="password" value="${jdbc.default.password}"/>
+
+        <property name="initialSize" value="${jdbc.default.initialSize}"/>
+        <property name="minIdle" value="${jdbc.default.minIdle}"/>
+        <property name="maxActive" value="${jdbc.default.maxActive}"/>
+
+        <property name="maxWait" value="${jdbc.default.maxWait}"/>
+
+        <property name="timeBetweenEvictionRunsMillis" value="${jdbc.default.timeBetweenEvictionRunsMillis}"/>
+
+        <property name="minEvictableIdleTimeMillis" value="${jdbc.default.minEvictableIdleTimeMillis}"/>
+
+        <property name="removeAbandoned" value="${jdbc.default.removeAbandoned}"/>
+        <property name="removeAbandonedTimeout" value="${jdbc.default.removeAbandonedTimeout}"/>
+        <property name="validationQuery" value="${jdbc.default.validationQuery}"/>
+        <property name="testWhileIdle" value="${jdbc.default.testWhileIdle}"/>
+        <property name="testOnBorrow" value="${jdbc.default.testOnBorrow}"/>
+        <property name="testOnReturn" value="${jdbc.default.testOnReturn}"/>
+
+        <property name="filters" value="${jdbc.default.filters}"/>
+    </bean>
+
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dataSource"/>
+        <property name="mapperLocations" value="classpath:mybatis/mapping/*Mapper.xml"/>
+        <property name="configLocation" value="classpath:mybatis/config.xml"/>
+        <property name="typeAliasesPackage" value="com.wangchg.study.db.model"/>
+        <property name="typeHandlersPackage" value="com.wangchg.study.db.handler"/>
+    </bean>
+
+    <bean id="sqlSession" class="org.mybatis.spring.SqlSessionTemplate" >
+        <constructor-arg index="0" ref="sqlSessionFactory"/>
+        <constructor-arg index="1" value="BATCH"/>
+    </bean>
+
+    <mybatis:scan base-package="com.wangchg.study.db.mapper" factory-ref="sqlSessionFactory"/>
+</beans>

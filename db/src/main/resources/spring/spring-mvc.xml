@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:util="http://www.springframework.org/schema/util" xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context
+       http://www.springframework.org/schema/context/spring-context.xsd
+       http://www.springframework.org/schema/mvc
+       http://www.springframework.org/schema/mvc/spring-mvc.xsd
+       http://www.springframework.org/schema/util
+       http://www.springframework.org/schema/util/spring-util.xsd
+       http://www.springframework.org/schema/aop
+       http://www.springframework.org/schema/aop/spring-aop.xsd">
+    <aop:aspectj-autoproxy proxy-target-class="true"/>
+    <mvc:resources mapping="/static/**" location="/static/"/>
+    <!--<mvc:resources mapping="/favicon.ico" location="/favicon.ico"/>-->
+    <!--<mvc:resources mapping="/robots.txt" location="/robots.txt"/>-->
+    <mvc:annotation-driven validator="validator">
+        <mvc:message-converters>
+            <bean class="org.springframework.http.converter.ByteArrayHttpMessageConverter"/>
+            <bean class="org.springframework.http.converter.StringHttpMessageConverter">
+                <property name="supportedMediaTypes">
+                    <list value-type="org.springframework.http.MediaType">
+                        <bean class="org.springframework.http.MediaType">
+                            <constructor-arg index="0" value="text"/>
+                            <constructor-arg index="1" value="plain"/>
+                            <constructor-arg index="2" value="UTF-8"/>
+                        </bean>
+                    </list>
+                </property>
+            </bean>
+            <bean class="org.springframework.http.converter.FormHttpMessageConverter"/>
+            <bean class="org.springframework.http.converter.xml.SourceHttpMessageConverter"/>
+            <bean class="org.springframework.http.converter.xml.MarshallingHttpMessageConverter">
+                <property name="marshaller" ref="jaxb2Marshaller"/>
+                <property name="unmarshaller" ref="jaxb2Marshaller"/>
+            </bean>
+            <bean class="com.alibaba.fastjson.support.spring.FastJsonHttpMessageConverter">
+                <!--
+                <property name="supportedMediaTypes">
+                    <list>
+                        <value>application/json</value>
+                    </list>
+                </property>
+                -->
+                <property name="features">
+                    <array>
+                        <value>DisableCircularReferenceDetect</value>
+                        <!--<value>WriteMapNullValue</value>-->
+                        <!--<value>WriteNullStringAsEmpty</value>-->
+                    </array>
+                </property>
+            </bean>
+        </mvc:message-converters>
+    </mvc:annotation-driven>
+    <context:component-scan base-package="com.wangchg.study.db.controller" use-default-filters="false">
+        <context:include-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+        <!--<context:include-filter type="annotation" expression="com.sinosoft.cisfrm.component.annotation.Interceptor"/>-->
+        <context:include-filter type="annotation"
+                                expression="org.springframework.web.bind.annotation.ControllerAdvice"/>
+    </context:component-scan>
+
+    <!--
+        <bean id="contentNegotiationManager" class="org.springframework.web.accept.ContentNegotiationManagerFactoryBean">
+            <property name="favorPathExtension" value="true"/>
+            <property name="favorParameter" value="false"/>
+            <property name="parameterName" value="mediaType"/>
+            <property name="ignoreAcceptHeader" value="false"/>
+            <property name="useJaf" value="false"/>
+            <property name="defaultContentType" value="ALL"/>
+            <property name="mediaTypes">
+                <value>
+                    json=application/json
+                    xml=application/xml
+                </value>
+            </property>
+        </bean>
+        -->
+
+    <mvc:interceptors>
+        <bean class="org.springframework.web.servlet.i18n.LocaleChangeInterceptor"/>
+        <!--<bean class="org.springframework.orm.jpa.support.OpenEntityManagerInViewInterceptor">-->
+        <!--<property name="entityManagerFactory" ref="entityManagerFactory">-->
+        <!--</property>-->
+        <!--</bean>-->
+        <!--<ref bean="testInterceptor"/>-->
+        <!--<ref bean="logInterceptor"/>-->
+    </mvc:interceptors>
+    <!--<bean class="org.springframework.validation.beanvalidation.SpringValidatorAdapter" id="validator"/>-->
+
+<!--    <bean id="velocityConfigurer" class="org.springframework.web.servlet.view.velocity.VelocityConfigurer">
+        <property name="resourceLoaderPath" value="/WEB-INF/views/velocity/"/>&lt;!&ndash; 模板存放的路径 &ndash;&gt;
+        <property name="configLocation" value="classpath:velocity.properties"/>
+    </bean>-->
+
+    <bean id="viewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="viewClass" value="org.springframework.web.servlet.view.JstlView"/>
+        <property name="contentType" value="text/html;charset=UTF-8"/>
+        <property name="cache" value="true"/>
+        <property name="prefix" value="/WEB-INF/views/"/>
+        <property name="suffix" value=".jsp"/>
+    </bean>
+    <!--<mvc:view-controller path="/link/page/home" view-name="link/home"/>-->
+    <!--<mvc:view-controller path="/link/page/manage" view-name="manage/link"/>-->
+    <!--<mvc:view-controller path="/menu/page/manage" view-name="manage/menu"/>-->
+    <!--<mvc:view-controller path="/log/page/manage" view-name="manage/log"/>-->
+    <!--<mvc:view-controller path="/custom/index/page/home" view-name="olap/customIndex"/>-->
+    <!--
+
+        <bean class="org.springframework.format.support.FormattingConversionService" id="conversionService"/>
+
+        <bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+            <property name="targetClass" value="org.springframework.core.convert.support.ConversionServiceFactory"/>
+            <property name="targetMethod" value="registerConverters"/>
+            <property name="arguments">
+                <util:list>
+                    <set>
+                        <bean class="org.springframework.data.repository.support.DomainClassConverter">
+                            <constructor-arg ref="conversionService"/>
+                        </bean>
+                    </set>
+                    <ref bean="conversionService"/>
+                </util:list>
+            </property>
+        </bean>
+        -->
+    <!-- 配置国际化资源文件路径 -->
+    <bean id="messageSource" class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
+        <property name="defaultEncoding" value="UTF-8"/>
+        <property name="cacheSeconds" value="-1"/>
+        <property name="fallbackToSystemLocale" value="false"/>
+        <!-- 不抛出NoSuchMessageException, 使用messageKey作为返回值 -->
+        <property name="useCodeAsDefaultMessage" value="true"/>
+        <property name="basenames">
+            <array>
+                <value>/WEB-INF/i18n/messages</value>
+            </array>
+        </property>
+    </bean>
+
+    <bean class="org.springframework.validation.beanvalidation.MethodValidationPostProcessor">
+        <property name="validator" ref="validator"/>
+    </bean>
+
+    <!-- 基于Cookie的本地化解析器 -->
+    <bean id="localeResolver" class="org.springframework.web.servlet.i18n.CookieLocaleResolver">
+        <property name="cookieMaxAge" value="604800"/>
+        <property name="defaultLocale" value="zh_CN"/>
+        <property name="cookieName" value="Language"/>
+    </bean>
+    <!-- 基于Session的本地化解析器 -->
+    <!--<bean id="localeResolver" class="org.springframework.web.servlet.i18n.SessionLocaleResolver" />-->
+
+    <bean class="org.springframework.validation.beanvalidation.LocalValidatorFactoryBean" id="validator">
+        <property name="providerClass" value="org.hibernate.validator.HibernateValidator"/>
+        <property name="validationMessageSource" ref="messageSource"/>
+    </bean>
+
+    <bean class="org.springframework.web.servlet.view.DefaultRequestToViewNameTranslator" id="viewNameTranslator"/>
+    <bean class="org.springframework.web.multipart.support.StandardServletMultipartResolver" id="multipartResolver"/>
+
+</beans>
