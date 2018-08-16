@@ -38,7 +38,7 @@ public class GiftServiceImpl implements GiftService {
     @Autowired
     private GiftMapper giftMapper;
 
-    @Transactional(isolation= Isolation.REPEATABLE_READ)
+    @Transactional
     public void batchInsertGift(List<Gift> gifts) {
         int i = 1;
         GiftMapper giftMapper = sqlSession.getMapper(GiftMapper.class);
